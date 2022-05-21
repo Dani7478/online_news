@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
        
         primarySwatch: Colors.teal,
       ),
-      home:const MainScreen()
+      home:const SplashView()
     );
   }
 }
