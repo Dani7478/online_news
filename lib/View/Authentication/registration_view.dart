@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:news_portal/Model/sqlitedbprovider.dart';
 import 'package:news_portal/View/Authentication/login_view.dart';
+import 'package:news_portal/View/Categories/Startup.dart';
 import 'package:news_portal/View/Common%20Widgets/snackbar.dart';
 
 class RegistrationView extends StatefulWidget {
@@ -16,13 +17,13 @@ TextEditingController usernameController = TextEditingController();
 TextEditingController emailController = TextEditingController();
 TextEditingController passwordController = TextEditingController();
 // ignore: unnecessary_new
-DatabaseHelper db = DatabaseHelper.instance;
 
 class _RegistrationViewState extends State<RegistrationView> {
+  DatabaseHelper db = DatabaseHelper.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      // appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(30),
         child: Center(
@@ -111,10 +112,14 @@ class _RegistrationViewState extends State<RegistrationView> {
                      int id= await db.insertUser(row);
                      if(id!=null)
                      {
-                       snackBar(context, 'Registered Id =${id}', 'OK');
+                       // ignore: use_build_context_synchronously
+                       snackBar(context, 'Registered Id =$id', 'OK');
+                       db.clearIntrest();
+                       Get.to(const StartupScreen());
                      }
                      else
                       {
+                        // ignore: use_build_context_synchronously
                         snackBar(context, 'Something went wrong', 'OK');
                       }
                     },

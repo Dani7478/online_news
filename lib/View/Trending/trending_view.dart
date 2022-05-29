@@ -27,7 +27,7 @@ class TrendingView extends StatefulWidget {
 }
 
 bool isAdVisible = true;
-bool isLoading = false;
+bool isLoading = true;
 late RssFeed rss = RssFeed();
 String searchtext = '';
 
@@ -44,7 +44,6 @@ class _TrendingViewState extends State<TrendingView> {
     // TODO: implement initState
     super.initState();
     checkInternet();
-
   }
 
   loadData() async {
@@ -52,9 +51,6 @@ class _TrendingViewState extends State<TrendingView> {
     if (internet == true) {
       clearTrendingNews();
       try {
-        setState(() {
-          isLoading = true;
-        });
         const API = 'https://www.geo.tv/rss/1/1';
         final response = await get(Uri.parse(API));
         var channel = RssFeed.parse(response.body);
@@ -72,20 +68,25 @@ class _TrendingViewState extends State<TrendingView> {
           String date =
               DateFormat('MMM dd yyyy').format(DateTime.parse(pubDate));
           saveTrendingNews(title, description, link, date);
+          DateTime fortime = DateTime.parse(pubDate);
+          String time = '${fortime.hour}:${fortime.minute}';
+
           favlist.add(false);
         }
       } catch (err) {
         throw err;
       }
+      isLoading = false;
+      setState(() {});
     }
-    if (internet == false)  {
-    offlineData=  await dbHelper.getAllTrending();
-    setState((){});
+    if (internet == false) {
+      offlineData = await dbHelper.getAllTrending();
+      setState(() {});
 
-    for (int i = 0; i < offlineData.length; i++) {
-      favlist.add(false);
-    }
-    print('offline news = ${offlineData.length}');
+      for (int i = 0; i < offlineData.length; i++) {
+        favlist.add(false);
+      }
+      print('offline news = ${offlineData.length}');
     }
   }
 
@@ -108,43 +109,54 @@ class _TrendingViewState extends State<TrendingView> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: titleText,
-        actions: [
-          PopupMenuButton<String>(onSelected: (value) {
-            if (value == "bookmark") {
-              Get.to(BookMarkView());
-            }
-          }, itemBuilder: (BuildContext context) {
-            return [
-              PopupMenuItem(
-                // ignore: sort_child_properties_last
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.bookmark,
-                        color: Color(0xFF0f65b3),
-                      ),
-                      onPressed: () async {
-                        Get.to(BookMarkView());
-                      },
-                    ),
-                    const SizedBox(
-                      width: 10.0,
-                    ),
-                    const Text(
-                      "Bookmark",
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    )
-                  ],
-                ),
-                value: "bookmark",
-              ),
-            ];
-          }),
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: titleText,
+      //   actions: [
+      //     PopupMenuButton<String>(onSelected: (value) {
+      //       if (value == "bookmark") {
+      //         Get.to(BookMarkView());
+      //       }
+      //     }, itemBuilder: (BuildContext context) {
+      //       return [
+      //         PopupMenuItem(
+      //           // ignore: sort_child_properties_last
+      //           child: Row(
+      //             children: [
+      //               IconButton(
+      //                 icon: const Icon(
+      //                   Icons.bookmark,
+      //                   color: Color(0xFF0f65b3),
+      //                 ),
+      //                 onPressed: () async {
+      //                   Get.to(BookMarkView());
+      //                 },
+      //               ),
+      //               const SizedBox(
+      //                 width: 10.0,
+      //               ),
+      //               const Text(
+      //                 "Bookmark",
+      //                 style: TextStyle(fontWeight: FontWeight.w500),
+      //               )
+      //             ],
+      //           ),
+      //           value: "bookmark",
+      //         ),
+      //       ];
+      //     }),
+      //   ],
+      //     //  bottom: const TabBar(
+      //     //   tabs: [
+      //     //     Tab(
+      //     //        text: ("One"),
+      //     //     ),
+      //     //     Tab(
+      //     //       text: ("Two"),
+      //     //     ),
+      //     //     Tab(text: ("Three"),)
+      //     //   ],
+      //     // ),
+      // ),
       body: Column(
         children: [
           Container(
@@ -208,31 +220,33 @@ class _TrendingViewState extends State<TrendingView> {
         : Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             child: ListView.builder(
-                itemCount: internet==true ? rss.items!.length : offlineData.length,
+                itemCount:
+                    internet == true ? rss.items!.length : offlineData.length,
                 itemBuilder: (context, index) {
                   // 0 1 2 3 ...19
-                 late String title;
-                 late String description;
-                 late String link;
-                 late String date;
-                  if(internet==true)
-                    {
-                      final item = rss.items![index];
-                       title  = item.title.toString();
-                       description = item.description.toString();
-                       link = item.link.toString();
-                    String   pubDate = item.pubDate.toString();
-                       date =
-                      DateFormat('MMM dd yyyy').format(DateTime.parse(pubDate));
-                    }
-                 if(internet==false)
-                 {
+                  late String title;
+                  late String description;
+                  late String link;
+                  late String date;
+                  late String time;
+                  if (internet == true) {
+                    final item = rss.items![index];
+                    title = item.title.toString();
+                    description = item.description.toString();
+                    link = item.link.toString();
+                    String pubDate = item.pubDate.toString();
+                    date = DateFormat('MMM dd yyyy')
+                        .format(DateTime.parse(pubDate));
+                        DateTime datetime=DateTime.parse(pubDate);
+                        time='${datetime.hour}:${datetime.minute}';
 
-                   title = offlineData[index]['title'];
-                   description = offlineData[index]['description'];
-                   link = offlineData[index]['link'];
-                   date =offlineData[index]['date'];
-                 }
+                  }
+                  if (internet == false) {
+                    title = offlineData[index]['title'];
+                    description = offlineData[index]['description'];
+                    link = offlineData[index]['link'];
+                    date = offlineData[index]['date'];
+                  }
 
                   // print(favlist.length);
                   // saveTrendingNews(title, description, link, date);
@@ -373,11 +387,21 @@ class _TrendingViewState extends State<TrendingView> {
                                             height: 20,
                                           ),
                                           Align(
-                                              alignment: Alignment.topRight,
-                                              child: Text(
+                                            alignment: Alignment.topRight,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                              Text(
                                                 date,
                                                 style: subHeadingStyle,
-                                              )),
+                                              ),
+                                              SizedBox(width: 8,),
+                                              Text(
+                                                time,
+                                                style: subHeadingStyle,
+                                              )
+                                            ]),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -411,7 +435,7 @@ class _TrendingViewState extends State<TrendingView> {
     };
 
     int id = await dbHelper.insertTrending(row);
-    print('Trending added with id ${id}');
+    //  print('Trending added with id ${id}');
   }
 
   clearTrendingNews() async {

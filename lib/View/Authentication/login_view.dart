@@ -7,6 +7,7 @@ import 'package:news_portal/View/MainView/main_view.dart';
 import 'package:news_portal/View/Trending/trending_view.dart';
 
 import '../../Model/sqlitedbprovider.dart';
+import '../MainView/home_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -15,17 +16,15 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 
-
-TextEditingController emailController=TextEditingController();
-TextEditingController passwordController=TextEditingController();
+TextEditingController emailController = TextEditingController();
+TextEditingController passwordController = TextEditingController();
 DatabaseHelper db = DatabaseHelper.instance;
-
 
 class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      // appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(30),
         child: Center(
@@ -93,20 +92,19 @@ class _LoginViewState extends State<LoginView> {
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: MaterialButton(
-                    onPressed: ()async {
-                    
-                    var response=  await db.getSingleUser(emailController.text, passwordController.text);
-                    if(response.length==0)
-                    {
-                   snackBar(context, 'Wrong email or password', 'OK');
-                    }
-                    else 
-                    {
-                      snackBar(context, 'Welcome in News Portal', 'OK');
-                     Get.to(MainScreen());
-                    }
-                    print(response.toString());
-                      
+                    onPressed: () async {
+                      var response = await db.getSingleUser(
+                          emailController.text, passwordController.text);
+                      if (response.length == 0) {
+                        snackBar(context, 'Wrong email or password', 'OK');
+                      } else {
+                        snackBar(context, 'Welcome in News Portal', 'OK');
+                        emailController.text = '';
+                        passwordController.text = '';
+                        setState(() {});
+                        Get.to(HomeView());
+                      }
+                      print(response.toString());
                     },
                     color: Colors.blue,
                     child: const Text(
@@ -137,7 +135,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
                     TextButton(
                       onPressed: () {
-                       Get.to(const RegistrationView());
+                        Get.to(const RegistrationView());
                       },
                       child: Text('Register Now'),
                     )

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:news_portal/View/MainView/home_view.dart';
 
 import 'package:path_provider/path_provider.dart';
 
@@ -19,7 +20,22 @@ class StartupScreen extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: titleText,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            titleText,
+            Container(
+              width: 100,
+              child: FlatButton(
+                color: Colors.white,
+                onPressed: (){
+                  Get.to(HomeView());
+                },
+                child: Text('Done' ),
+              ),
+            )
+          ],
+        ),
         backgroundColor: primaryColor,
       ),
       body: Container(
@@ -101,9 +117,9 @@ class StartupScreen extends StatelessWidget {
 }
 
 Text titleText = Text(
-  "Categories",
+'Please Select Your Intrest..',
   style: GoogleFonts.josefinSans(
-      fontSize: 24, color: Colors.white, fontWeight: FontWeight.w800),
+      fontSize: 15, color: Colors.white, fontWeight: FontWeight.w800),
 );
 Color primaryColor = Colors.teal;
 
