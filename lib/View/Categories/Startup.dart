@@ -7,6 +7,7 @@ import 'package:news_portal/View/MainView/home_view.dart';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../MainView/main_view.dart';
 import 'Entertainment/entertainment_channels.dart';
 import 'Politics/politics.dart';
 import 'Sports/sports.dart';
@@ -29,7 +30,7 @@ class StartupScreen extends StatelessWidget {
               child: FlatButton(
                 color: Colors.white,
                 onPressed: (){
-                  Get.to(HomeView());
+                  Get.to(MainScreen());
                 },
                 child: Text('Done' ),
               ),

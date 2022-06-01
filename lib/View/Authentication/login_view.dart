@@ -102,7 +102,7 @@ class _LoginViewState extends State<LoginView> {
                         emailController.text = '';
                         passwordController.text = '';
                         setState(() {});
-                        Get.to(HomeView());
+                        Get.to(const MainScreen());
                       }
                       print(response.toString());
                     },

@@ -36,7 +36,7 @@ class _TrendingViewState extends State<TrendingView> {
   bool loading = false;
   List<bool> favlist = [];
   List<bool> bookmrklist = [];
-  late var offlineData;
+  List offlineData=[];
   DatabaseHelper dbHelper = DatabaseHelper.instance;
 
   @override
@@ -65,11 +65,11 @@ class _TrendingViewState extends State<TrendingView> {
           String description = item.description.toString();
           String link = item.link.toString();
           String pubDate = item.pubDate.toString();
-          String date =
-              DateFormat('MMM dd yyyy').format(DateTime.parse(pubDate));
-          saveTrendingNews(title, description, link, date);
-          DateTime fortime = DateTime.parse(pubDate);
-          String time = '${fortime.hour}:${fortime.minute}';
+          DateTime dateTime = DateTime.parse(pubDate);
+          String date = DateFormat('MMM dd yyyy').format(dateTime);
+          String time = '${dateTime.hour}:${dateTime.minute}';
+
+          saveTrendingNews(title, description, link, date, time);
 
           favlist.add(false);
         }
@@ -79,10 +79,9 @@ class _TrendingViewState extends State<TrendingView> {
       isLoading = false;
       setState(() {});
     }
-    if (internet == false) {
+    if (internet == false || internet==true) {
       offlineData = await dbHelper.getAllTrending();
       setState(() {});
-
       for (int i = 0; i < offlineData.length; i++) {
         favlist.add(false);
       }
@@ -215,42 +214,19 @@ class _TrendingViewState extends State<TrendingView> {
   }
 
   NewsPortion(Size size) {
-    return isLoading == true
+    return isLoading == true || offlineData.length==0
         ? Loader()
         : Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             child: ListView.builder(
-                itemCount:
-                    internet == true ? rss.items!.length : offlineData.length,
+                itemCount: offlineData.length,
                 itemBuilder: (context, index) {
-                  // 0 1 2 3 ...19
-                  late String title;
-                  late String description;
-                  late String link;
-                  late String date;
-                  late String time;
-                  if (internet == true) {
-                    final item = rss.items![index];
-                    title = item.title.toString();
-                    description = item.description.toString();
-                    link = item.link.toString();
-                    String pubDate = item.pubDate.toString();
-                    date = DateFormat('MMM dd yyyy')
-                        .format(DateTime.parse(pubDate));
-                        DateTime datetime=DateTime.parse(pubDate);
-                        time='${datetime.hour}:${datetime.minute}';
 
-                  }
-                  if (internet == false) {
-                    title = offlineData[index]['title'];
-                    description = offlineData[index]['description'];
-                    link = offlineData[index]['link'];
-                    date = offlineData[index]['date'];
-                  }
-
-                  // print(favlist.length);
-                  // saveTrendingNews(title, description, link, date);
-                  // favlist.add(false);
+                   String title = offlineData[index]['title'];
+                   String  description = offlineData[index]['description'];
+                   String link = offlineData[index]['link'];
+                   String date = offlineData[index]['date'];
+                   String time=offlineData[index]['time'];
                   return title.toLowerCase().contains(searchtext) //maryam
                       ? InkWell(
                           onTap: () {
@@ -350,6 +326,7 @@ class _TrendingViewState extends State<TrendingView> {
                                                     'description': description,
                                                     'link': link,
                                                     'date': date,
+                                                    'time' :time
                                                   };
 
                                                   final id = await dbHelper
@@ -389,18 +366,21 @@ class _TrendingViewState extends State<TrendingView> {
                                           Align(
                                             alignment: Alignment.topRight,
                                             child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                              Text(
-                                                date,
-                                                style: subHeadingStyle,
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Text(
-                                                time,
-                                                style: subHeadingStyle,
-                                              )
-                                            ]),
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    date,
+                                                    style: subHeadingStyle,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Text(
+                                                    time,
+                                                    style: subHeadingStyle,
+                                                  )
+                                                ]),
                                           ),
                                         ],
                                       ),
@@ -425,13 +405,14 @@ class _TrendingViewState extends State<TrendingView> {
     );
   }
 
-  saveTrendingNews(
-      String title, String description, String link, String date) async {
+  saveTrendingNews(String title, String description, String link, String date,
+      String time) async {
     Map<String, dynamic> row = {
       'title': title,
       'description': description,
       'link': link,
       'date': date,
+      'time': time
     };
 
     int id = await dbHelper.insertTrending(row);

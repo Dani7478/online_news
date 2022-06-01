@@ -2,7 +2,9 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:news_portal/View/Trending/trending_view.dart';
 
+import '../Bookmark/bookmark_view.dart';
 import '../Categories/Startup.dart';
+import 'home_view.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -14,8 +16,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _pageIndex = 0;
   List<Widget> pageList = <Widget>[
-     TrendingView(),
-     StartupScreen()
+    HomeView(),
+    BookMarkView(),
+
     //setting(),
   ];
   @override
@@ -26,8 +29,8 @@ class _MainScreenState extends State<MainScreen> {
         height: 60.0,
         items:const [
           Icon(Icons.trending_up_sharp),
-          Icon(Icons.category_outlined),
           Icon(Icons.bookmark_added),
+          Icon(Icons.category_outlined),
           Icon(Icons.notification_add_outlined),
         ],
         color: Colors.teal,

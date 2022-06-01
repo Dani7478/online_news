@@ -26,132 +26,112 @@ class MyFeedsView extends StatefulWidget {
   State<MyFeedsView> createState() => _MyFeedsViewState();
 }
 
-List<String> titleList = [];
-List<String> descriptionList = [];
-List<String> linkList = [];
-List<String> dateList = [];
-
 bool isAdVisible = true;
 bool isLoading = true;
-
 late RssFeed rss = RssFeed();
-
 String searchtext = '';
 List<String> channelList = [];
 List<String> channelLinkList = [];
-int totalNews = 0;
 
 class _MyFeedsViewState extends State<MyFeedsView> {
   bool internet = true;
   bool loading = false;
   List<bool> favlist = [];
   List<bool> bookmrklist = [];
-   List? offlineData;
+  List offlineData = [];
   DatabaseHelper dbHelper = DatabaseHelper.instance;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    testing();
-    checkInternet();
+    callfunctions();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    titleList.clear();
-    descriptionList.clear();
-    linkList.clear();
-    dateList.clear();
+    // TODO: implement initState
+    channelLinkList.clear();
+    channelList.clear();
     super.dispose();
-
+  }
+  callfunctions() async {
+    await checkInternet();
+    await loadChannels();
+    await loadData();
   }
 
+  checkInternet() async {
+    print('checking internet.....\n');
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      internet = true;
+      print('connection : Mobile \n');
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      internet = true;
+      print('connection : Wifi \n');
+    } else {
+      print('connection : no internet \n');
+      internet = false;
+    }
+    print('_____________________________________________________\n');
+  }
 
-
-  testing() async {
-    print('Testing Start ...........');
+  loadChannels() async {
+    // ignore: avoid_print
+    print('loading channels ......\n');
     List list = await dbHelper.getAllIntrestRows();
     for (int i = 0; i < list.length; i++) {
       channelList.add(list[i]['title']);
       channelLinkList.add(list[i]['link']);
     }
-    print('Testing End ...........');
-    totalNews = channelList.length * 10;
+    print('total channels : ${channelLinkList.length}\n');
+    print('_____________________________________________________\n');
   }
 
   loadData() async {
-    print('loading');
+    print('loading News.......\n');
     if (internet == true) {
       clearFeedNews();
       for (int i = 0; i < channelLinkList.length; i++) {
+        print('Fetching Online News....');
         try {
-          setState(() {
-            isLoading = true;
-          });
           String API = channelLinkList[i];
           final response = await get(Uri.parse(API));
           var channel = RssFeed.parse(response.body);
-          setState(() {
-            rss = channel;
-          //  isLoading = false;
-          });
+          rss = channel;
 
           for (int i = 0; i < rss.items!.length; i++) {
+            print('Saving news ${i}....');
             final item = rss.items![i];
             String title = item.title.toString();
             String description = item.description.toString();
             String link = item.link.toString();
             String pubDate = item.pubDate.toString();
-            String date =
-                DateFormat('MMM dd yyyy').format(DateTime.parse(pubDate));
-            saveFeedNews(title, description, link, date);
+            DateTime dateTime = DateTime.parse(pubDate);
+            String date = DateFormat('MMM dd yyyy').format(dateTime);
+            String time = '${dateTime.hour}:${dateTime.minute}';
+            saveFeedNews(title, description, link, date, time);
+
             favlist.add(false);
           }
         } catch (err) {
           throw err;
         }
-        for (int i = 0; i < rss.items!.length; i++) {
-          final item = rss.items![i];
-          titleList.add(item.title.toString());
-          descriptionList.add(item.description.toString());
-          linkList.add(item.link.toString());
-          String pubDate = item.pubDate.toString();
-          String date =
-              DateFormat('MMM dd yyyy').format(DateTime.parse(pubDate));
-          dateList.add(date);
-        }
       }
-      // clearTrendingNews();
-
     }
-    if (internet == false || internet==true) {
+    if (internet == false || internet == true) {
+      print('Fecthing Offline News');
       offlineData = await dbHelper.allFeeds();
       setState(() {});
-
-      for (int i = 0; i < offlineData!.length; i++) {
+      for (int i = 0; i < offlineData.length; i++) {
         favlist.add(false);
       }
-      print('offline news = ${offlineData!.length}');
+      print('offline news = ${offlineData.length}');
     }
     isLoading = false;
     setState(() {});
-  }
-
-  checkInternet() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile) {
-      loadData();
-      print('Mobile Data is Connected');
-    } else if (connectivityResult == ConnectivityResult.wifi) {
-      loadData();
-      print('Wifi Data is Connected');
-    } else {
-      internet = false;
-      loadData();
-      setState(() {});
-    }
+    print('_____________________________________________________\n');
   }
 
   @override
@@ -264,49 +244,25 @@ class _MyFeedsViewState extends State<MyFeedsView> {
   }
 
   NewsPortion(Size size) {
-    return isLoading == true
+    return isLoading == true || offlineData.length == 0
         ? Loader()
         : Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             child: ListView.builder(
-                itemCount: offlineData!.length,
+                itemCount: offlineData.length,
                 itemBuilder: (context, index) {
-                  // 0 1 2 3 ...19
-                  late String title;
-                  late String description;
-                  late String link;
-                  late String date;
-                  // if (internet == true) {
-                  //  // final item = rss.items![index];
-                  //   title = titleList[index];
-                  //   description = descriptionList[index];
-                  //   link = linkList[index];
-                  //  // String pubDate = item.pubDate.toString();
-                  //   date = dateList[index];
-                  // }
-                  // if (internet == false) {
-                  //   title = offlineData[index]['title'];
-                  //   description = offlineData[index]['description'];
-                  //   link = offlineData[index]['link'];
-                  //   date = offlineData[index]['date'];
-                  // }
-                   title = offlineData![index]['title'];
-                    description = offlineData![index]['description'];
-                    link = offlineData![index]['link'];
-                    date = offlineData![index]['date'];
-
-                  // print(favlist.length);
-                  // saveTrendingNews(title, description, link, date);
-                  // favlist.add(false);
-                  return 'Checking.....'
-                          .toLowerCase()
-                          .contains(searchtext) //maryam
+                  String title = offlineData[index]['title'];
+                  String description = offlineData[index]['description'];
+                  String link = offlineData[index]['link'];
+                  String date = offlineData[index]['date'];
+                  String time = offlineData[index]['time'];
+                  return title.toLowerCase().contains(searchtext) //maryam
                       ? InkWell(
                           onTap: () {
                             Get.to(NewsDetailView(
-                              description: descriptionList[index],
-                              link: linkList[index],
-                              title: titleList[index],
+                              description: description,
+                              link: link,
+                              title: title,
                             ));
                           },
                           child: Container(
@@ -389,23 +345,23 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                 ),
                                               ),
 
-                                              const SizedBox(
+                                              SizedBox(
                                                 width: 20,
                                               ),
                                               InkWell(
                                                 onTap: () async {
                                                   Map<String, dynamic> row = {
-                                                    'title':title,
-                                                    'description':description,
+                                                    'title': title,
+                                                    'description': description,
                                                     'link': link,
                                                     'date': date,
+                                                    'time': time
                                                   };
 
                                                   final id = await dbHelper
                                                       .insertBookmark(row);
                                                   print('inserted row id: $id');
                                                   if (id != null) {
-                                                    // ignore: use_build_context_synchronously
                                                     snackBar(
                                                         context,
                                                         'News Saved in Bookmark',
@@ -433,15 +389,28 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                               //  Text(date),
                                             ],
                                           ),
-                                          const SizedBox(
+                                          SizedBox(
                                             height: 20,
                                           ),
                                           Align(
-                                              alignment: Alignment.topRight,
-                                              child: Text(
-                                                date,
-                                                style: subHeadingStyle,
-                                              )),
+                                            alignment: Alignment.topRight,
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    date,
+                                                    style: subHeadingStyle,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Text(
+                                                    time,
+                                                    style: subHeadingStyle,
+                                                  )
+                                                ]),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -465,17 +434,19 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     );
   }
 
-  saveFeedNews(
-      String title, String description, String link, String date) async {
+  saveFeedNews(String title, String description, String link, String date,
+      String time) async {
+    print('News Saving...');
     Map<String, dynamic> row = {
       'title': title,
       'description': description,
       'link': link,
       'date': date,
+      'time': time
     };
 
     int id = await dbHelper.insertFeed(row);
-    //print('Trending added with id ${id}');
+    //  print('Trending added with id ${id}');
   }
 
   clearFeedNews() async {

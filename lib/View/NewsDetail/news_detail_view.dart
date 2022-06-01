@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:news_portal/View/NewsDetail/webviewScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class NewsDetailView extends StatefulWidget {
   NewsDetailView(
@@ -21,6 +27,9 @@ class NewsDetailView extends StatefulWidget {
   @override
   State<NewsDetailView> createState() => _NewsDetailViewState();
 }
+
+
+final Completer<WebViewController> _controller = Completer<WebViewController>();
 
 class _NewsDetailViewState extends State<NewsDetailView> {
   @override
@@ -84,19 +93,30 @@ class _NewsDetailViewState extends State<NewsDetailView> {
                         "Visit Link for more detail",
                         style: headingStyle,
                       )),
+                  // const SizedBox(
+                  //   height: 5,
+                  // ),
+                  // Align(
+                  //   alignment: Alignment.topLeft,
+                  //   child: SelectableLinkify(
+                  //     onOpen: _onOpen,
+                  //     text: widget.link,
+                  //   ),
+                  // ),
                   const SizedBox(
-                    height: 5,
+                    height: 50,
                   ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: SelectableLinkify(
-                      onOpen: _onOpen,
-                      text: widget.link,
+                  Container(
+                    height: 50,
+                    width: 200,
+                    color: Colors.teal,
+                    child: MaterialButton(
+                      onPressed: (){
+                        Get.to(WebViewScreen(link: widget.link,));
+                      },
+                      child: Text('See More'),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
+                  )
                  
                 ],
               ))

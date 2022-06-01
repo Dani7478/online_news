@@ -100,6 +100,7 @@ class _BookMarkViewState extends State<BookMarkView> {
               String description = response[index]['description'];
               String link = response[index]['link'];
               String date = response[index]['date'];
+              String time=response[index]['time'];
               // favlist.add(false);
               return title.toLowerCase().contains(searchtext)
                   ? InkWell(
@@ -143,15 +144,28 @@ class _BookMarkViewState extends State<BookMarkView> {
                                       const SizedBox(
                                         height: 20,
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         height: 20,
                                       ),
                                       Align(
                                           alignment: Alignment.topRight,
-                                          child: Text(
-                                            date,
-                                            style: subHeadingStyle,
-                                          )),
+                                         child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    date,
+                                                    style: subHeadingStyle,
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Text(
+                                                    time,
+                                                    style: subHeadingStyle,
+                                                  )
+                                                ]),
+                                          ),
                                     ],
                                   ),
                                 ),

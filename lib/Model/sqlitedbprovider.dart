@@ -38,7 +38,8 @@ class DatabaseHelper {
             title TEXT NOT NULL,
             description TEXT NOT NULL,
             link TEXT NOT NULL,
-            date TEXT NOT NULL
+            date TEXT NOT NULL,
+            time TEXT NOT NULL
           )
           ''');
     print('User Table Created.....');
@@ -57,7 +58,8 @@ class DatabaseHelper {
             title TEXT NOT NULL,
             description TEXT NOT NULL,
             link TEXT NOT NULL,
-            date TEXT NOT NULL
+            date TEXT NOT NULL,
+            time TEXT NOT NULL
           )
           ''');
     print('Intrest Table Created.....');
@@ -76,7 +78,8 @@ class DatabaseHelper {
             title TEXT NOT NULL,
             description TEXT NOT NULL,
             link TEXT NOT NULL,
-            date TEXT NOT NULL
+            date TEXT NOT NULL,
+            time TEXT NOT NULL
           )
           ''');
 
@@ -193,7 +196,7 @@ class DatabaseHelper {
   }
 
   clearFeed() async {
-    print('Delete All Intrest.......');
+    print('Delete All Feeds.......');
     Database? db = await instance.database;
     return await db!.rawQuery('delete from feed');
 
