@@ -18,6 +18,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../Model/sqlitedbprovider.dart';
 import '../NewsDetail/news_detail_view.dart';
+import 'package:http/http.dart' as http;
 
 class TrendingView extends StatefulWidget {
   const TrendingView({Key? key}) : super(key: key);
@@ -36,7 +37,7 @@ class _TrendingViewState extends State<TrendingView> {
   bool loading = false;
   List<bool> favlist = [];
   List<bool> bookmrklist = [];
-  List offlineData=[];
+  List offlineData = [];
   DatabaseHelper dbHelper = DatabaseHelper.instance;
 
   @override
@@ -52,14 +53,14 @@ class _TrendingViewState extends State<TrendingView> {
       clearTrendingNews();
       try {
         const API = 'https://www.geo.tv/rss/1/1';
-        final response = await get(Uri.parse(API));
+        final response = await http.get(Uri.parse(API));
         var channel = RssFeed.parse(response.body);
         setState(() {
           rss = channel;
           isLoading = false;
         });
 
-        for (int i = 0; i < rss.items!.length; i++) {
+        for (int i = 0; i < rss.items!.length; i++) { //....20
           final item = rss.items![i];
           String title = item.title.toString();
           String description = item.description.toString();
@@ -67,7 +68,7 @@ class _TrendingViewState extends State<TrendingView> {
           String pubDate = item.pubDate.toString();
           DateTime dateTime = DateTime.parse(pubDate);
           String date = DateFormat('MMM dd yyyy').format(dateTime);
-          String time = '${dateTime.hour}:${dateTime.minute}';
+          String time = '${dateTime.hour}:${dateTime.minute}';  // 11:46
 
           saveTrendingNews(title, description, link, date, time);
 
@@ -79,7 +80,7 @@ class _TrendingViewState extends State<TrendingView> {
       isLoading = false;
       setState(() {});
     }
-    if (internet == false || internet==true) {
+    if (internet == false || internet == true) {
       offlineData = await dbHelper.getAllTrending();
       setState(() {});
       for (int i = 0; i < offlineData.length; i++) {
@@ -87,6 +88,9 @@ class _TrendingViewState extends State<TrendingView> {
       }
       print('offline news = ${offlineData.length}');
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   checkInternet() async {
@@ -214,19 +218,19 @@ class _TrendingViewState extends State<TrendingView> {
   }
 
   NewsPortion(Size size) {
-    return isLoading == true || offlineData.length==0
+    return isLoading == true || offlineData.isEmpty
         ? Loader()
         : Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             child: ListView.builder(
                 itemCount: offlineData.length,
                 itemBuilder: (context, index) {
-
-                   String title = offlineData[index]['title'];
-                   String  description = offlineData[index]['description'];
-                   String link = offlineData[index]['link'];
-                   String date = offlineData[index]['date'];
-                   String time=offlineData[index]['time'];
+                 
+                  String title = offlineData[index]['title'];
+                  String description = offlineData[index]['description'];
+                  String link = offlineData[index]['link'];
+                  String date = offlineData[index]['date'];
+                  String time = offlineData[index]['time'];
                   return title.toLowerCase().contains(searchtext) //maryam
                       ? InkWell(
                           onTap: () {
@@ -326,7 +330,7 @@ class _TrendingViewState extends State<TrendingView> {
                                                     'description': description,
                                                     'link': link,
                                                     'date': date,
-                                                    'time' :time
+                                                    'time': time
                                                   };
 
                                                   final id = await dbHelper
@@ -360,7 +364,7 @@ class _TrendingViewState extends State<TrendingView> {
                                               //  Text(date),
                                             ],
                                           ),
-                                          SizedBox(
+                                         const SizedBox(
                                             height: 20,
                                           ),
                                           Align(
@@ -373,7 +377,7 @@ class _TrendingViewState extends State<TrendingView> {
                                                     date,
                                                     style: subHeadingStyle,
                                                   ),
-                                                  SizedBox(
+                                                 const SizedBox(
                                                     width: 8,
                                                   ),
                                                   Text(

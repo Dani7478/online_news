@@ -15,9 +15,17 @@ class HealthChannels extends StatefulWidget {
 }
 
 DatabaseHelper db = DatabaseHelper.instance;
-List<bool> isAdded = [false, false];
+
 
 class _HealthChannelsState extends State<HealthChannels> {
+  List<bool> isAdded = [false, false, false];
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    isAdded = [false, false, false];
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;

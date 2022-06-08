@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -32,13 +34,17 @@ late RssFeed rss = RssFeed();
 String searchtext = '';
 List<String> channelList = [];
 List<String> channelLinkList = [];
+String? day;
+int? hour;
 
 class _MyFeedsViewState extends State<MyFeedsView> {
   bool internet = true;
   bool loading = false;
   List<bool> favlist = [];
   List<bool> bookmrklist = [];
+  List scheduleList = [];
   List offlineData = [];
+  List scheduleSData = [];
   DatabaseHelper dbHelper = DatabaseHelper.instance;
 
   @override
@@ -55,9 +61,16 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     channelList.clear();
     super.dispose();
   }
+
   callfunctions() async {
+    DateTime now= DateTime.now();
+    day = DateFormat('EEEE').format(now);
+    hour=now.hour;
+    
+    print('____________________$day');
     await checkInternet();
     await loadChannels();
+    await getSchedleData();
     await loadData();
   }
 
@@ -78,7 +91,6 @@ class _MyFeedsViewState extends State<MyFeedsView> {
   }
 
   loadChannels() async {
-    // ignore: avoid_print
     print('loading channels ......\n');
     List list = await dbHelper.getAllIntrestRows();
     for (int i = 0; i < list.length; i++) {
@@ -94,13 +106,22 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     if (internet == true) {
       clearFeedNews();
       for (int i = 0; i < channelLinkList.length; i++) {
+        // geo news lahore news thenews
+        String submitedChannel = channelList[i];
+      //  // bool _isok = false;
+      //   for (int j = 0; j < scheduleList.length; j++) {
+      //     if (scheduleList[j] == channelList[i]) {
+      //       print('S C H D U L E');
+      //       _isok = true;
+      //     }
+      //   }
+
         print('Fetching Online News....');
         try {
           String API = channelLinkList[i];
           final response = await get(Uri.parse(API));
           var channel = RssFeed.parse(response.body);
           rss = channel;
-
           for (int i = 0; i < rss.items!.length; i++) {
             print('Saving news ${i}....');
             final item = rss.items![i];
@@ -111,7 +132,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
             DateTime dateTime = DateTime.parse(pubDate);
             String date = DateFormat('MMM dd yyyy').format(dateTime);
             String time = '${dateTime.hour}:${dateTime.minute}';
-            saveFeedNews(title, description, link, date, time);
+            saveFeedNews(submitedChannel, title, description, link, date, time);
 
             favlist.add(false);
           }
@@ -122,7 +143,8 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     }
     if (internet == false || internet == true) {
       print('Fecthing Offline News');
-      offlineData = await dbHelper.allFeeds();
+        offlineData = await dbHelper.allFeeds();
+      List list = await dbHelper.allFeeds();
       setState(() {});
       for (int i = 0; i < offlineData.length; i++) {
         favlist.add(false);
@@ -132,6 +154,13 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     isLoading = false;
     setState(() {});
     print('_____________________________________________________\n');
+  }
+
+  getSchedleData() async {
+    print('loading schedle News.....');
+    List list = await dbHelper.getFilterSchedleNews(day!);
+    scheduleList = list;
+    setState(() {});
   }
 
   @override
@@ -192,8 +221,8 @@ class _MyFeedsViewState extends State<MyFeedsView> {
               width: size.width,
               height: size.height * 0.05,
               color: internet == true
-                  ? Color.fromARGB(255, 25, 216, 31)
-                  : Color.fromARGB(255, 255, 54, 40),
+                  ? const Color.fromARGB(255, 25, 216, 31)
+                  : const Color.fromARGB(255, 255, 54, 40),
               child: internet == true
                   ? Center(
                       child: Text(
@@ -256,7 +285,21 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                   String link = offlineData[index]['link'];
                   String date = offlineData[index]['date'];
                   String time = offlineData[index]['time'];
-                  return title.toLowerCase().contains(searchtext) //maryam
+                  String channel = offlineData[index]['channel'];
+                  bool _isShow=false;
+                  for(int i=0; i<scheduleList.length; i++) {
+                    int stime=int.parse(scheduleList[i]['stime'].toString().split(':').first);
+                     int etime=int.parse(scheduleList[i]['etime'].toString().split(':').first);
+                   if( channel.toLowerCase()==scheduleList[i]['channel'].toString().toLowerCase()
+                   && (hour!>=stime && hour!<etime)
+                   ){
+                     _isShow=true;
+                   }
+                  }
+                  if(scheduleList.isEmpty) {
+                     _isShow=true;
+                  }
+                 return title.toLowerCase().contains(searchtext) && _isShow==true
                       ? InkWell(
                           onTap: () {
                             Get.to(NewsDetailView(
@@ -275,10 +318,11 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 child: Row(children: [
                                   CircleAvatar(
+                                    radius: 25,
                                     backgroundColor: Colors.white,
                                     child: Center(
                                         child: Text(
-                                      '# ${index + 1}',
+                                      channel.split(' ').first,
                                       style: numberStyle,
                                     )),
                                   ),
@@ -322,8 +366,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                       height: 20,
                                                       color: favlist[index] ==
                                                               true
-                                                          ? Color.fromARGB(
-                                                              255, 248, 55, 71)
+                                                          ? const Color.fromARGB(255, 248, 55, 71)
                                                           : Colors.black,
                                                     ),
                                                     Text('Like',
@@ -332,11 +375,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                                         index] ==
                                                                     true
                                                                 ? const Color
-                                                                        .fromARGB(
-                                                                    255,
-                                                                    248,
-                                                                    55,
-                                                                    71)
+                                                                        .fromARGB(255,248,55, 71)
                                                                 : Colors.black,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -345,7 +384,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                 ),
                                               ),
 
-                                              SizedBox(
+                                            const  SizedBox(
                                                 width: 20,
                                               ),
                                               InkWell(
@@ -389,7 +428,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                               //  Text(date),
                                             ],
                                           ),
-                                          SizedBox(
+                                         const SizedBox(
                                             height: 20,
                                           ),
                                           Align(
@@ -402,13 +441,22 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                     date,
                                                     style: subHeadingStyle,
                                                   ),
-                                                  SizedBox(
+                                                  const SizedBox(
                                                     width: 8,
                                                   ),
                                                   Text(
                                                     time,
                                                     style: subHeadingStyle,
-                                                  )
+                                                  ),
+
+                                                  const SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Text(
+                                                    channel,
+                                                    style: subHeadingStyle,
+                                                  ),
+                                                  
                                                 ]),
                                           ),
                                         ],
@@ -434,10 +482,11 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     );
   }
 
-  saveFeedNews(String title, String description, String link, String date,
-      String time) async {
+  saveFeedNews(String channel, String title, String description, String link,
+      String date, String time) async {
     print('News Saving...');
     Map<String, dynamic> row = {
+      'channel': channel,
       'title': title,
       'description': description,
       'link': link,
@@ -471,6 +520,6 @@ TextStyle internetStyle = GoogleFonts.josefinSans(
     fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700);
 
 TextStyle numberStyle = GoogleFonts.josefinSans(
-    fontSize: 20,
+    fontSize: 15,
     color: Color.fromARGB(255, 247, 28, 13),
     fontWeight: FontWeight.w900);

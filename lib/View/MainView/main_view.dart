@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   int _pageIndex = 0;
   List<Widget> pageList = <Widget>[
     HomeView(),
-    BookMarkView(),
+    const BookMarkView(),
 
     //setting(),
   ];

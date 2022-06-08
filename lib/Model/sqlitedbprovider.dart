@@ -1,10 +1,10 @@
-// ignore_for_file: unnecessary_brace_in_string_interps
+// ignore_for_file: unnecessary_brace_in_string_interps, avoid_print
 
 import 'dart:io';
 
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor(); // int
@@ -75,6 +75,7 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE feed (
             id INTEGER PRIMARY KEY,
+            channel TEXT NOT NULL,
             title TEXT NOT NULL,
             description TEXT NOT NULL,
             link TEXT NOT NULL,
@@ -83,7 +84,16 @@ class DatabaseHelper {
           )
           ''');
 
-
+    print('schedule Table Created.....');
+    await db.execute('''
+          CREATE TABLE schedule (
+            id INTEGER PRIMARY KEY,
+            day TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            stime TEXT NOT NULL,
+            etime TEXT NOT NULL
+          )
+          ''');
   }
 
 //_______________________________________BOOKMARK FUNCTION
@@ -107,6 +117,12 @@ class DatabaseHelper {
   Future<int> getSingleBookmark(Map<String, dynamic> row) async {
     Database? db = await instance.database;
     return await db!.insert('bookmark', row);
+  }
+
+  deleteSingleBookMark(String titl) async {
+    print('Deleteing Bookmark');
+    Database? db = await instance.database;
+    return await db?.delete('bookmark', where: 'title = ?', whereArgs: [titl]);
   }
 
 //_______________________________________USER FUNCTION
@@ -174,7 +190,6 @@ class DatabaseHelper {
     print('Delete All Intrest.......');
     Database? db = await instance.database;
     return await db!.rawQuery('delete from intrest');
-
   }
 
   //____________________________________________________________FUNCTION FOR FEED
@@ -186,9 +201,11 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> allFeeds() async {
     Database? db = await instance.database;
-    return await db!.query('feed',orderBy :'date DESC',);
+    return await db!.query(
+      'feed',
+    //  orderBy: 'date DESC',
+    );
   }
-
 
   Future<int> getSingleFeed(Map<String, dynamic> row) async {
     Database? db = await instance.database;
@@ -199,6 +216,35 @@ class DatabaseHelper {
     print('Delete All Feeds.......');
     Database? db = await instance.database;
     return await db!.rawQuery('delete from feed');
+  }
 
+  getFilterFeed(String channel) async {
+    Database? db = await instance.database;
+    return await db!.query('feed', where: 'channel=?', whereArgs: [channel]);
+  }
+
+  //____________________________________________________________FUNCTION FOR SCHEDLE
+  Future<int> insertSchedle(Map<String, dynamic> row) async {
+    print('inserting schedle');
+    Database? db = await instance.database;
+    return await db!.insert('schedule', row);
+  }
+
+  deleteAllSchedle() async {
+    print('Delete All Schedle .......');
+    Database? db = await instance.database;
+    return await db!.rawQuery('delete from schedule');
+  }
+
+  getFilterSchedleNews(String day) async {
+    print('Fetching News for $day');
+    Database? db = await instance.database;
+    return await db
+        ?.query('schedule', where: 'day=?', whereArgs: [day.toLowerCase()]);
+  }
+
+  getAllSchedle() async {
+    Database? db = await instance.database;
+    return db?.query('schedule');
   }
 }

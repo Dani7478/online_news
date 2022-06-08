@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:news_portal/View/Categories/Startup.dart';
-import 'package:news_portal/View/MainView/home_view.dart';
-import 'package:news_portal/View/MainView/main_view.dart';
 import 'package:news_portal/View/MainView/splash_view.dart';
 import 'Model/sqlitedbprovider.dart';
-import 'View/Categories/Politics/NationalChannels/national_channels.dart';
 
 
 void main() {
@@ -27,7 +23,7 @@ class MyApp extends StatelessWidget {
        
         primarySwatch: Colors.teal,
       ),
-      home: SplashView(),
+      home:const SplashView(),
     );
   }
 }

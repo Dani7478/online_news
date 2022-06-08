@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:news_portal/View/MainView/home_view.dart';
+import 'package:news_portal/View/Schedule/schedule_view.dart';
 
 import 'package:path_provider/path_provider.dart';
 
@@ -30,7 +31,7 @@ class StartupScreen extends StatelessWidget {
               child: FlatButton(
                 color: Colors.white,
                 onPressed: (){
-                  Get.to(MainScreen());
+                  Get.to( ScheduleView());
                 },
                 child: Text('Done' ),
               ),

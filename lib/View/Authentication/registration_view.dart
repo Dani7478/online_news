@@ -115,6 +115,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                        // ignore: use_build_context_synchronously
                        snackBar(context, 'Registered Id =$id', 'OK');
                        db.clearIntrest();
+                       db.deleteAllSchedle();
                        Get.to(const StartupScreen());
                      }
                      else

@@ -18,14 +18,20 @@ class NationalNews extends StatefulWidget {
 }
 
 DatabaseHelper db = DatabaseHelper.instance;
-List<bool> isAdded = [false, false, false];
+
 
 class _NationalNewsState extends State<NationalNews> {
   // final intrestController = Get.put(IntrestController());
+List<bool> isAdded = [false, false, false];
 
+@override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    isAdded = [false, false, false];
+  }
 
-
-
+  
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -105,8 +111,8 @@ class _NationalNewsState extends State<NationalNews> {
               child: FlatButton(
                 color:isAdded[index] == false ? Colors.teal : Colors.redAccent,
                 onPressed: () async {
-                  Map<String, dynamic> data = {'title': ttl, 'link': link};
-                  await db.insertIntrest(data);
+                  // Map<String, dynamic> data = {'title': ttl, 'link': link};
+                  // await db.insertIntrest(data);
                   // snackBar(context, 'Added Intrest', 'OK');
                 },
                 child: isAdded[index] == false

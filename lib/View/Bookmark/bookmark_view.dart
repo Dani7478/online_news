@@ -7,6 +7,8 @@ import 'package:animations/animations.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:news_portal/View/Authentication/login_view.dart';
+import 'package:news_portal/View/Common%20Widgets/snackbar.dart';
 import 'package:webfeed/webfeed.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart';
@@ -29,7 +31,7 @@ String searchtext = '';
 class _BookMarkViewState extends State<BookMarkView> {
   bool loading = false;
   DatabaseHelper dbHelper = DatabaseHelper.instance;
-  late var response;
+  var response=[];
 
   @override
   void initState() {
@@ -90,7 +92,7 @@ class _BookMarkViewState extends State<BookMarkView> {
   }
 
   NewsPortion(Size size) {
-    return isLoading == true
+    return isLoading == true || response.length == 0
         ? Loader()
         : ListView.builder(
             itemCount: response.length,
@@ -100,7 +102,7 @@ class _BookMarkViewState extends State<BookMarkView> {
               String description = response[index]['description'];
               String link = response[index]['link'];
               String date = response[index]['date'];
-              String time=response[index]['time'];
+              String time = response[index]['time'];
               // favlist.add(false);
               return title.toLowerCase().contains(searchtext)
                   ? InkWell(
@@ -110,6 +112,10 @@ class _BookMarkViewState extends State<BookMarkView> {
                           link: link,
                           title: title,
                         ));
+                      },
+                      onLongPress: () async {
+                        await deleteBook(title);
+                        setState(() {});
                       },
                       child: Container(
                         height: 200,
@@ -148,24 +154,24 @@ class _BookMarkViewState extends State<BookMarkView> {
                                         height: 20,
                                       ),
                                       Align(
-                                          alignment: Alignment.topRight,
-                                         child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    date,
-                                                    style: subHeadingStyle,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 8,
-                                                  ),
-                                                  Text(
-                                                    time,
-                                                    style: subHeadingStyle,
-                                                  )
-                                                ]),
-                                          ),
+                                        alignment: Alignment.topRight,
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                date,
+                                                style: subHeadingStyle,
+                                              ),
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(
+                                                time,
+                                                style: subHeadingStyle,
+                                              )
+                                            ]),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -186,6 +192,15 @@ class _BookMarkViewState extends State<BookMarkView> {
         size: 80,
       ),
     );
+  }
+
+  deleteBook(String title) async {
+    int count = await db.deleteSingleBookMark(title);
+    if (count != null) {
+      // ignore: use_build_context_synchronously
+      snackBar(context, 'Deleted Successfully', 'OK');
+    await loadData();
+    }
   }
 }
 

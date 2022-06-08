@@ -14,9 +14,18 @@ class InterNationalNews extends StatefulWidget {
   @override
   State<InterNationalNews> createState() => _InterNationalNewsState();
 }
-List<bool> isAdded = [false, false, false];
+
 DatabaseHelper db = DatabaseHelper.instance;
 class _InterNationalNewsState extends State<InterNationalNews> {
+
+List<bool> isAdded = [false, false, false];
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    isAdded = [false, false, false];
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
