@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:news_portal/View/MainView/splash_view.dart';
+import 'package:news_portal/View/Tasks/task1.dart';
 import 'Model/sqlitedbprovider.dart';
-
 
 void main() {
   DatabaseHelper db = DatabaseHelper.instance;
@@ -12,7 +12,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -20,11 +19,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'News Portal',
       theme: ThemeData(
-       
         primarySwatch: Colors.teal,
       ),
-      home:const SplashView(),
+      home: const SplashView(),
     );
   }
 }
-

@@ -203,7 +203,7 @@ class DatabaseHelper {
     Database? db = await instance.database;
     return await db!.query(
       'feed',
-    //  orderBy: 'date DESC',
+      //  orderBy: 'date DESC',
     );
   }
 
@@ -241,6 +241,13 @@ class DatabaseHelper {
     Database? db = await instance.database;
     return await db
         ?.query('schedule', where: 'day=?', whereArgs: [day.toLowerCase()]);
+  }
+
+  deleteSingleSchedle(String day) async {
+    print('Clearing  News for $day');
+    Database? db = await instance.database;
+    return await db
+        ?.delete('schedule', where: 'day=?', whereArgs: [day.toLowerCase()]);
   }
 
   getAllSchedle() async {
