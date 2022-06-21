@@ -63,10 +63,10 @@ class _MyFeedsViewState extends State<MyFeedsView> {
   }
 
   callfunctions() async {
-    DateTime now= DateTime.now();
+    DateTime now = DateTime.now();
     day = DateFormat('EEEE').format(now);
-    hour=now.hour;
-    
+    hour = now.hour;
+
     print('____________________$day');
     await checkInternet();
     await loadChannels();
@@ -108,13 +108,13 @@ class _MyFeedsViewState extends State<MyFeedsView> {
       for (int i = 0; i < channelLinkList.length; i++) {
         // geo news lahore news thenews
         String submitedChannel = channelList[i];
-      //  // bool _isok = false;
-      //   for (int j = 0; j < scheduleList.length; j++) {
-      //     if (scheduleList[j] == channelList[i]) {
-      //       print('S C H D U L E');
-      //       _isok = true;
-      //     }
-      //   }
+        //  // bool _isok = false;
+        //   for (int j = 0; j < scheduleList.length; j++) {
+        //     if (scheduleList[j] == channelList[i]) {
+        //       print('S C H D U L E');
+        //       _isok = true;
+        //     }
+        //   }
 
         print('Fetching Online News....');
         try {
@@ -143,7 +143,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
     }
     if (internet == false || internet == true) {
       print('Fecthing Offline News');
-        offlineData = await dbHelper.allFeeds();
+      offlineData = await dbHelper.allFeeds();
       List list = await dbHelper.allFeeds();
       setState(() {});
       for (int i = 0; i < offlineData.length; i++) {
@@ -286,20 +286,25 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                   String date = offlineData[index]['date'];
                   String time = offlineData[index]['time'];
                   String channel = offlineData[index]['channel'];
-                  bool _isShow=false;
-                  for(int i=0; i<scheduleList.length; i++) {
-                    int stime=int.parse(scheduleList[i]['stime'].toString().split(':').first);
-                     int etime=int.parse(scheduleList[i]['etime'].toString().split(':').first);
-                   if( channel.toLowerCase()==scheduleList[i]['channel'].toString().toLowerCase()
-                   && (hour!>=stime && hour!<etime)
-                   ){
-                     _isShow=true;
-                   }
+                  bool _isShow = false;
+                  for (int i = 0; i < scheduleList.length; i++) {
+                    int stime = int.parse(
+                        scheduleList[i]['stime'].toString().split(':').first);
+                    int etime = int.parse(
+                        scheduleList[i]['etime'].toString().split(':').first);
+                    if (channel.toLowerCase() ==
+                            scheduleList[i]['channel']
+                                .toString()
+                                .toLowerCase() &&
+                        (hour! >= stime && hour! < etime)) {
+                      _isShow = true;
+                    }
                   }
-                  if(scheduleList.isEmpty) {
-                     _isShow=true;
+                  if (scheduleList.isEmpty) {
+                    _isShow = true;
                   }
-                 return title.toLowerCase().contains(searchtext) && _isShow==true
+                  return title.toLowerCase().contains(searchtext) &&
+                          _isShow == true
                       ? InkWell(
                           onTap: () {
                             Get.to(NewsDetailView(
@@ -328,7 +333,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 30),
+                                        vertical: 10, horizontal: 10),
                                     child: Container(
                                       width: size.width * 0.55,
                                       child: Column(
@@ -366,7 +371,9 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                       height: 20,
                                                       color: favlist[index] ==
                                                               true
-                                                          ? const Color.fromARGB(255, 248, 55, 71)
+                                                          ? const Color
+                                                                  .fromARGB(
+                                                              255, 248, 55, 71)
                                                           : Colors.black,
                                                     ),
                                                     Text('Like',
@@ -375,7 +382,11 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                                         index] ==
                                                                     true
                                                                 ? const Color
-                                                                        .fromARGB(255,248,55, 71)
+                                                                        .fromARGB(
+                                                                    255,
+                                                                    248,
+                                                                    55,
+                                                                    71)
                                                                 : Colors.black,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -384,7 +395,7 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                 ),
                                               ),
 
-                                            const  SizedBox(
+                                              const SizedBox(
                                                 width: 20,
                                               ),
                                               InkWell(
@@ -428,11 +439,11 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                               //  Text(date),
                                             ],
                                           ),
-                                         const SizedBox(
-                                            height: 20,
+                                          const SizedBox(
+                                            height: 15,
                                           ),
                                           Align(
-                                            alignment: Alignment.topRight,
+                                            alignment: Alignment.topLeft,
                                             child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.end,
@@ -452,11 +463,10 @@ class _MyFeedsViewState extends State<MyFeedsView> {
                                                   const SizedBox(
                                                     width: 8,
                                                   ),
-                                                  Text(
-                                                    channel,
-                                                    style: subHeadingStyle,
-                                                  ),
-                                                  
+                                                  // Text(
+                                                  //   channel,
+                                                  //   style: subHeadingStyle,
+                                                  // ),
                                                 ]),
                                           ),
                                         ],
